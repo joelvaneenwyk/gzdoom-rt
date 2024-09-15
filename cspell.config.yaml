@@ -1,0 +1,11 @@
+version: "0.2"
+ignorePaths: []
+dictionaryDefinitions:
+  - name: gzdoom-rt
+    path: ./.github/config/gzdoom-rt.dict
+    addWords: true
+dictionaries:
+  - gzdoom-rt
+words: []
+ignoreWords: []
+import: []
