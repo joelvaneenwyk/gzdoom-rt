@@ -53,7 +53,7 @@ else()
 	set(CMAKE_CXX_STANDARD 17)
 endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF) 
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 
 list( APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
@@ -250,7 +250,13 @@ if( ${TARGET_ARCHITECTURE} MATCHES "x86_64" )
 	set( HAVE_VM_JIT ON )
 endif()
 
-option (HAVE_VULKAN "Enable Vulkan support" OFF)
+# We enable Vulkan support by default if RT is enabled because RayTracedGL1 also requires it.
+if (HAVE_RT)
+	option (HAVE_VULKAN "Enable Vulkan support" ON)
+else()
+	option (HAVE_VULKAN "Enable Vulkan support" OFF)
+endif()
+
 option (HAVE_GLES2 "Enable GLES2 support" OFF)
 
 # no, we're not using external asmjit for now, we made too many modifications to our's.
@@ -308,7 +314,7 @@ if( MSVC )
 else()
 	set( REL_LINKER_FLAGS "" )
 	set( ALL_C_FLAGS "-ffp-contract=off" )
-	
+
 	set( ALL_C_FLAGS "${ALL_C_FLAGS} /DHAVE_RT=0" )
 
 	if ( HAVE_VULKAN )
@@ -372,6 +378,10 @@ mark_as_advanced( FORCE_INTERNAL_ASMJIT )
 
 if (HAVE_VULKAN)
 	add_subdirectory( libraries/ZVulkan )
+endif()
+
+if( HAVE_RT )
+	add_subdirectory( libraries/RayTracedGL1 )
 endif()
 
 add_subdirectory( libraries/discordrpc EXCLUDE_FROM_ALL )
