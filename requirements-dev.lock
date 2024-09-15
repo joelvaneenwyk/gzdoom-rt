@@ -7,6 +7,31 @@
 #   all-features: false
 #   with-sources: false
 #   generate-hashes: false
-#   universal: false
+#   universal: true
 
 -e file:.
+astroid==3.2.4
+    # via pylint
+colorama==0.4.6 ; sys_platform == 'win32'
+    # via pylint
+dill==0.3.8
+    # via pylint
+isort==5.13.2
+    # via pylint
+mccabe==0.7.0
+    # via pylint
+meson==1.5.1
+mypy==1.11.2
+mypy-extensions==1.0.0
+    # via mypy
+nodeenv==1.9.1
+    # via pyright
+platformdirs==4.3.3
+    # via pylint
+pylint==3.2.7
+pyright==1.1.380
+ruff==0.6.5
+tomlkit==0.13.2
+    # via pylint
+typing-extensions==4.12.2
+    # via mypy

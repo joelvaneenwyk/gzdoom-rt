@@ -14,7 +14,7 @@ vars:
   OUTPUT_EXE_PATH: >-
     RelWithDebInfo/gzdoom.exe
   RUN_WINDOWS: "cmd /d /e:on /c"
-  RUN_UNIX: "bash -c"
+  RUN_UNIX: bash -c
   RUN: '{{if eq OS "windows"}}{{.RUN_WINDOWS}}{{ else }}{{.RUN_UNIX}}{{ end }}'
 
 tasks:
@@ -53,8 +53,9 @@ tasks:
     deps: [cmake-install]
     cmds:
       - cmd: >-
-          cmd.exe /D /E:ON /C /
+          cmd.exe /D /E:ON /C \
             start "taskfile-run" /D "{{joinPath .TASKFILE_DIR "bin"}}" "{{joinPath .TASKFILE_DIR .OUTPUT_EXE_PATH}}"
+        platforms: [windows]
 
   vcpkg-integrate:
     deps: [vcpkg-download]
@@ -63,17 +64,19 @@ tasks:
     sources:
       - vcpkg.json
     generates:
-      - ./vcpkg_installed/vcpkg/vcpkg-lock.json
-      - ./vcpkg_installed/*-*/lib/*.lib
-      - ./vcpkg_installed/*-*/lib/*.a
-      - ./vcpkg_installed/*-*/include/**/*.h
+      - vcpkg_installed/vcpkg/vcpkg-lock.json
+      - vcpkg_installed/*-*/lib/*.lib
+      - vcpkg_installed/*-*/lib/*.a
+      - vcpkg_installed/*-*/include/**/*.h
     vars:
       VCPKG_ROOT_ARG: --vcpkg-root "{{joinPath .TASKFILE_DIR "libraries" "vcpkg "}}"
     cmds:
       - cmd: >-
-          {{.RUN}} {{ fromSlash .VCPKG_EXE | shellQuote }} integrate install
+          {{.RUN}} "{{ fromSlash .VCPKG_EXE | shellQuote }} integrate install"
+        platforms: [windows]
       - cmd: >-
-          {{.RUN}} {{ fromSlash .VCPKG_EXE | shellQuote }} install --debug --keep-going
+          {{.RUN}} "{{ fromSlash .VCPKG_EXE | shellQuote }} install --debug --keep-going"
+        platforms: [windows]
 
   vcpkg-download:
     deps: [git-submodule-init]
@@ -88,10 +91,8 @@ tasks:
     platforms: [linux]
     cmds:
       - cmd: |
-          sudo apt install /
-            git build-essential /
-            qtcreator qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools /
-            libusb-1.0-0-dev libhidapi-dev pkgconf libmbedtls-dev qttools5-dev-tools
+          sudo apt install -y --no-install-recommends \
+            git build-essential autoconf libtool
 
   dependencies:
     internal: true
@@ -116,14 +117,18 @@ tasks:
       - cmd: |  # shell
           mkdir "$BUILD_ROOT" "$VCPKG_INSTALLED" "$ZMUSIC_BUILD_ROOT" || true
       - cmd: |  # shell
-          cmake -A x64 -S "$ZMUSIC_ROOT" -B "$ZMUSIC_BUILD_ROOT" \
+          cmake \
+              -S "$ZMUSIC_ROOT" -B "$ZMUSIC_BUILD_ROOT" \
+              {{if eq OS "windows"}}-A x64{{end}} \
               -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
               -DVCPKG_LIBSNDFILE=1 \
               -DVCPKG_INSTALLED_DIR="$VCPKG_INSTALLED"
       - cmd: |  # shell
           cmake --build "$ZMUSIC_BUILD_ROOT" --config Release -- -maxcpucount -verbosity:minimal
       - cmd: |  # shell
-          cmake -A x64 -S "$SOURCE_ROOT" -B "$DOOM_BUILD_ROOT" \
+          cmake \
+              -S "$SOURCE_ROOT" -B "$DOOM_BUILD_ROOT" \
+              {{if eq OS "windows"}}-A x64{{end}} \
               -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
               -DZMUSIC_INCLUDE_DIR="$ZMUSIC_ROOT/include" \
               -DZMUSIC_LIBRARIES="$ZMUSIC_BUILD_ROOT/source/Release/zmusic.lib" \
@@ -172,9 +177,9 @@ tasks:
       - 7z
     cmds:
       - cmd: |
-          scoop install /
-            extras/inno-setup /
-            main/7zip /
+          scoop install \
+            extras/inno-setup \
+            main/7zip \
             main/uutils-coreutils
 
   git-submodule-init:
@@ -223,10 +228,10 @@ tasks:
         silent: true
         ignore_error: true
       - cmd: |
-          clang-tidy "{{joinPath .TASKFILE_DIR .CLANG_TIDY_SOURCE}}" /
-            --config-file="{{joinPath .TASKFILE_DIR ".clang-tidy"}}" /
-            --use-color /
-            --fix /
-            --fix-notes /
-            --fix-errors /
+          clang-tidy "{{joinPath .TASKFILE_DIR .CLANG_TIDY_SOURCE}}" \
+            --config-file="{{joinPath .TASKFILE_DIR ".clang-tidy"}}" \
+            --use-color \
+            --fix \
+            --fix-notes \
+            --fix-errors \
           > "{{joinPath .TASKFILE_DIR .CLANG_TIDY_OUT_FILE | fromSlash}}"
