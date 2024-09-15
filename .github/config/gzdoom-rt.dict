@@ -33,12 +33,15 @@ libhidapi
 libmbedtls
 LIBSNDFILE
 libusb
+libvpx
+libwebp
 LIMITPAIN
 maxcpucount
 MBFMONSTERMOVE
 NODOORLIGHT
 NOINFIGHTING
 NOJUMPDOWN
+openal
 pushd
 qmake
 qtbase
@@ -51,6 +54,7 @@ setlocal
 SHORTTEX
 skymap
 STAIRINDEX
+staticcrt
 staylift
 STAYONLIFT
 taskfile
