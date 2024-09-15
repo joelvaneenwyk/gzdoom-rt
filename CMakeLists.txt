@@ -250,7 +250,7 @@ if( ${TARGET_ARCHITECTURE} MATCHES "x86_64" )
 	set( HAVE_VM_JIT ON )
 endif()
 
-# We enable Vulkan support by default if RT is enabled because RayTracedGL1 also requires it.
+# We enable Vulkan support by default if RT is enabled because RTGL/RayTracedGL1 also requires it.
 if (HAVE_RT)
 	option (HAVE_VULKAN "Enable Vulkan support" ON)
 else()
@@ -381,7 +381,8 @@ if (HAVE_VULKAN)
 endif()
 
 if( HAVE_RT )
-	add_subdirectory( libraries/RayTracedGL1 )
+	set( RG_USE_SURFACE_WIN32 ON)
+	add_subdirectory( libraries/RTGL )
 endif()
 
 add_subdirectory( libraries/discordrpc EXCLUDE_FROM_ALL )

@@ -93,8 +93,15 @@ tasks:
             qtcreator qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools /
             libusb-1.0-0-dev libhidapi-dev pkgconf libmbedtls-dev qttools5-dev-tools
 
-  build:
+  dependencies:
+    internal: true
     deps: [git-submodule-init]
+    cmds:
+      - task: vcpkg-integrate
+      - task: python-venv
+    
+  build:
+    deps: [dependencies]
     env:
       ZMUSIC_ROOT: '{{joinPath .TASKFILE_DIR "libraries" "zmusic"}}'
       VCPKG_ROOT: '{{joinPath .TASKFILE_DIR "libraries" "vcpkg"}}'
@@ -104,12 +111,10 @@ tasks:
       BUILD_ROOT: '{{joinPath .TASKFILE_DIR ".build"}}'
       ZMUSIC_BUILD_ROOT: '{{joinPath .TASKFILE_DIR ".build" "zmusic"}}'
       DOOM_BUILD_ROOT: '{{joinPath .TASKFILE_DIR ".build" "doom"}}'
+      RTGL1_SDK_PATH: '{{joinPath .TASKFILE_DIR "libraries" "RTGL"}}'
     cmds:
-      - task: vcpkg-integrate
       - cmd: |  # shell
-          git -C "$SOURCE_ROOT" submodule update --init --recursive
-      - cmd: |  # shell
-          mkdir "$BUILD_ROOT" "$VCPKG_INSTALLED" "$ZMUSIC_BUILD_ROOT"
+          mkdir "$BUILD_ROOT" "$VCPKG_INSTALLED" "$ZMUSIC_BUILD_ROOT" || true
       - cmd: |  # shell
           cmake -A x64 -S "$ZMUSIC_ROOT" -B "$ZMUSIC_BUILD_ROOT" \
               -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \

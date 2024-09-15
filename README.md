@@ -2,19 +2,18 @@
 
 **GZDoom: Ray Traced** introduces a path tracing renderer to **GZDoom**, a Doom source port.
 
-
 ## Local Build
 
 Windows
 
 1. Run `auto-setup-windows.cmd` to configure and build via CMake
-    * This will produce `build/RelWithDebInfo/gzdoom.exe` (and Visual Studio solution `build/GZDoom.sln`)
-1. Copy from a release package into `build/RelWithDebInfo/` folder:
+    - This will produce `build/RelWithDebInfo/gzdoom.exe` (and Visual Studio solution `build/GZDoom.sln`)
+2. Copy from a release package into `build/RelWithDebInfo/` folder:
     1. `rt` folder
-    1. `libsndfile-1.dll`
-    1. `openal32.dll`
-    1. `zmusic.dll`
-1. Run `build/RelWithDebInfo/gzdoom.exe`
+    2. `libsndfile-1.dll`
+    3. `openal32.dll`
+    4. `zmusic.dll`
+3. Run `build/RelWithDebInfo/gzdoom.exe`
 
 ##
 

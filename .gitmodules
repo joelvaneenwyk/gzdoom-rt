@@ -10,7 +10,7 @@
 	path = src/common/rendering/rt/unordered_dense
 	url = https://github.com/martinus/unordered_dense.git
 	branch = main
-[submodule "libraries/RayTracedGL1"]
-	path = libraries/RayTracedGL1
-	url = https://github.com/sultim-t/RayTracedGL1.git
-	branch = hl1
+[submodule "libraries/RTGL"]
+	path = libraries/RTGL
+	url = https://github.com/vs-shirokii/RTGL.git
+	branch = main
