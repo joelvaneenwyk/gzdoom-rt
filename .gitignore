@@ -35,3 +35,6 @@
 /.venv/
 /.git/
 /.build/
+
+.task/
+vcpkg_installed/
