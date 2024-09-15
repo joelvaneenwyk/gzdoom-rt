@@ -3,17 +3,21 @@
 
 version: "3"
 
+env:
+  VCPKG_ROOT: "{{.TASKFILE_DIR}}/libraries/vcpkg"
+
 vars:
+  VCPKG_ROOT: "{{.TASKFILE_DIR}}/libraries/vcpkg"
   VCPKG_BOOTSTRAP_BAT: "{{.TASKFILE_DIR}}/libraries/vcpkg/bootstrap-vcpkg.bat"
   VCPKG_BOOTSTRAP_SH: "{{.TASKFILE_DIR}}/libraries/vcpkg/bootstrap-vcpkg.sh"
+  VCPKG_CMAKE: '{{ joinPath .TASKFILE_DIR "libraries" "vcpkg" "scripts" "buildsystems" "vcpkg.cmake" }}'
   VCPKG_BOOTSTRAP: >-
     {{if eq OS "windows"}}{{.VCPKG_BOOTSTRAP_BAT}}{{else}}{{.VCPKG_BOOTSTRAP_SH}}{{end}}
   VCPKG_EXE: "{{.TASKFILE_DIR}}/libraries/vcpkg/vcpkg{{exeExt}}"
-  BUILD_DIR_NAME: >-
-    build
-  OUTPUT_EXE_PATH: >-
-    RelWithDebInfo/gzdoom.exe
-  RUN_WINDOWS: "cmd /d /e:on /c"
+
+  BUILD_DIR_NAME: build
+  OUTPUT_EXE_PATH: RelWithDebInfo/gzdoom.exe
+  RUN_WINDOWS: cmd /d /e:on /c
   RUN_UNIX: bash -c
   RUN: '{{if eq OS "windows"}}{{.RUN_WINDOWS}}{{ else }}{{.RUN_UNIX}}{{ end }}'
 
@@ -115,26 +119,33 @@ tasks:
       RTGL1_SDK_PATH: '{{joinPath .TASKFILE_DIR "libraries" "RTGL"}}'
     cmds:
       - cmd: |  # shell
+          {{if .CLI_FORCE}}rm -rf "$BUILD_ROOT" "$VCPKG_INSTALLED" "$ZMUSIC_BUILD_ROOT"{{end}}
+      - cmd: |  # shell
           mkdir "$BUILD_ROOT" "$VCPKG_INSTALLED" "$ZMUSIC_BUILD_ROOT" || true
       - cmd: |  # shell
-          cmake \
+          rye run cmake \
               -S "$ZMUSIC_ROOT" -B "$ZMUSIC_BUILD_ROOT" \
-              {{if eq OS "windows"}}-A x64{{end}} \
-              -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+              {{if eq OS "windows"}}-A x64{{else}}-G Ninja{{end}} \
+              -D CMAKE_TOOLCHAIN_FILE="{{ .VCPKG_CMAKE }}" \
               -DVCPKG_LIBSNDFILE=1 \
-              -DVCPKG_INSTALLED_DIR="$VCPKG_INSTALLED"
+              -DVCPKG_INSTALLED_DIR="{{ joinPath .TASKFILE_DIR "vcpkg_installed" }}"
       - cmd: |  # shell
-          cmake --build "$ZMUSIC_BUILD_ROOT" --config Release -- -maxcpucount -verbosity:minimal
+          rye run cmake \
+            --build "$ZMUSIC_BUILD_ROOT" --config Release \
+            {{if eq OS "windows"}}-- -maxcpucount -verbosity:minimal{{end}}
       - cmd: |  # shell
-          cmake \
+          rye run cmake \
               -S "$SOURCE_ROOT" -B "$DOOM_BUILD_ROOT" \
-              {{if eq OS "windows"}}-A x64{{end}} \
-              -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+              {{if eq OS "windows"}}-A x64{{else}}-G Ninja{{end}} \
+              -DCMAKE_TOOLCHAIN_FILE="{{ .VCPKG_CMAKE }}" \
               -DZMUSIC_INCLUDE_DIR="$ZMUSIC_ROOT/include" \
               -DZMUSIC_LIBRARIES="$ZMUSIC_BUILD_ROOT/source/Release/zmusic.lib" \
-              -DVCPKG_INSTALLED_DIR="$VCPKG_INSTALLED"
+              -DVCPKG_INSTALLED_DIR="{{ joinPath .TASKFILE_DIR "vcpkg_installed" }}"
       - cmd: |  # shell
-          cmake --build "$DOOM_BUILD_ROOT" --config RelWithDebInfo -- -maxcpucount -verbosity:minimal
+          rye run cmake \
+            --build "$DOOM_BUILD_ROOT" \
+            --config RelWithDebInfo \
+            {{if eq OS "windows"}}-- -maxcpucount -verbosity:minimal{{end}}
 
   make:
     deps: [python-venv]

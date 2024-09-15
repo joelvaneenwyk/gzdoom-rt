@@ -38,3 +38,4 @@
 
 .task/
 vcpkg_installed/
+*.whl

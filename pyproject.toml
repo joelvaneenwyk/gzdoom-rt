@@ -23,6 +23,7 @@ dev-dependencies = [
     "isort>=5.13.2",
     "pyright>=1.1.380",
     "meson>=1.5.1",
+    "cmake>=3.30.3",
 ]
 
 [tool.hatch.metadata]
