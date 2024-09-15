@@ -1,6 +1,3 @@
-[submodule "src/common/rendering/rt/unordered_dense"]
-	path = src/common/rendering/rt/unordered_dense
-	url = C:/Dev/gzdoom/src/common/rendering/rt
 [submodule "vcpkg"]
 	path = libraries/vcpkg
 	url = https://github.com/microsoft/vcpkg.git
@@ -9,3 +6,11 @@
 	path = libraries/zmusic
 	url = https://github.com/zdoom/zmusic
 	branch = master
+[submodule "src/common/rendering/rt/unordered_dense"]
+	path = src/common/rendering/rt/unordered_dense
+	url = https://github.com/martinus/unordered_dense.git
+	branch = main
+[submodule "libraries/RayTracedGL1"]
+	path = libraries/RayTracedGL1
+	url = https://github.com/sultim-t/RayTracedGL1.git
+	branch = hl1
