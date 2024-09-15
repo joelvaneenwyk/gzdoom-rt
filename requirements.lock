@@ -10,3 +10,11 @@
 #   universal: true
 
 -e file:.
+cmake==3.30.3
+    # via gzdoom-rt
+jinja2==3.1.4
+    # via gzdoom-rt
+markupsafe==2.1.5
+    # via jinja2
+meson==1.5.1
+    # via gzdoom-rt
