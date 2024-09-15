@@ -60,6 +60,9 @@ jobs:
             deps_cmdline: sudo apt update && sudo apt install clang-15 libsdl2-dev libvpx-dev libwebp-dev
             build_type: Release
 
+    env:
+      RTGL1_SDK_PATH: "${{ github.workspace }}/libraries/RTGL"
+
     steps:
       - uses: actions/checkout@v4
         with:

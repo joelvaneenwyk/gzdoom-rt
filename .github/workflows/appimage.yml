@@ -7,6 +7,9 @@ jobs:
     name: Linux Clang 12 | AppImage
     runs-on: ubuntu-latest
 
+    env:
+      RTGL1_SDK_PATH: "${{ github.workspace }}/libraries/RTGL"
+
     steps:
       - uses: actions/checkout@v4
         with:
