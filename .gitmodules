@@ -1,3 +1,7 @@
 [submodule "src/common/rendering/rt/unordered_dense"]
 	path = src/common/rendering/rt/unordered_dense
 	url = C:/Dev/gzdoom/src/common/rendering/rt
+[submodule "vcpkg"]
+	path = libraries/vcpkg
+	url = https://github.com/microsoft/vcpkg.git
+	branch = master
