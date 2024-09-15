@@ -4,11 +4,11 @@
 version: "3"
 
 vars:
-  VCPKG_BOOTSTRAP_BAT: "{{.TASKFILE_DIR}}/dependencies/vcpkg/bootstrap-vcpkg.bat"
-  VCPKG_BOOTSTRAP_SH: "{{.TASKFILE_DIR}}/dependencies/vcpkg/bootstrap-vcpkg.sh"
+  VCPKG_BOOTSTRAP_BAT: "{{.TASKFILE_DIR}}/libraries/vcpkg/bootstrap-vcpkg.bat"
+  VCPKG_BOOTSTRAP_SH: "{{.TASKFILE_DIR}}/libraries/vcpkg/bootstrap-vcpkg.sh"
   VCPKG_BOOTSTRAP: >-
     {{if eq OS "windows"}}{{.VCPKG_BOOTSTRAP_BAT}}{{else}}{{.VCPKG_BOOTSTRAP_SH}}{{end}}
-  VCPKG_EXE: "{{.TASKFILE_DIR}}/dependencies/vcpkg/vcpkg{{exeExt}}"
+  VCPKG_EXE: "{{.TASKFILE_DIR}}/libraries/vcpkg/vcpkg{{exeExt}}"
   BUILD_DIR_NAME: >-
     build
   OUTPUT_EXE_PATH: >-
@@ -53,13 +53,13 @@ tasks:
     deps: [cmake-install]
     cmds:
       - cmd: >-
-          cmd.exe /D /E:ON /C \
+          cmd.exe /D /E:ON /C /
             start "taskfile-run" /D "{{joinPath .TASKFILE_DIR "bin"}}" "{{joinPath .TASKFILE_DIR .OUTPUT_EXE_PATH}}"
 
   vcpkg-integrate:
     deps: [vcpkg-download]
     env:
-      VCPKG_ROOT: '{{joinPath .TASKFILE_DIR "dependencies" "vcpkg"}}'
+      VCPKG_ROOT: '{{joinPath .TASKFILE_DIR "libraries" "vcpkg"}}'
     sources:
       - vcpkg.json
     generates:
@@ -68,7 +68,7 @@ tasks:
       - ./vcpkg_installed/*-*/lib/*.a
       - ./vcpkg_installed/*-*/include/**/*.h
     vars:
-      VCPKG_ROOT_ARG: --vcpkg-root "{{joinPath .TASKFILE_DIR "dependencies" "vcpkg "}}"
+      VCPKG_ROOT_ARG: --vcpkg-root "{{joinPath .TASKFILE_DIR "libraries" "vcpkg "}}"
     cmds:
       - cmd: >-
           {{.RUN}} {{ fromSlash .VCPKG_EXE | shellQuote }} integrate install
@@ -80,28 +80,56 @@ tasks:
     status:
       - test -f "{{.VCPKG_EXE}}"
     env:
-      VCPKG_ROOT: '{{joinPath .TASKFILE_DIR "dependencies" "vcpkg"}}'
+      VCPKG_ROOT: '{{joinPath .TASKFILE_DIR "libraries" "vcpkg"}}'
     cmds:
       - cmd: '{{.RUN}} "{{ fromSlash .VCPKG_BOOTSTRAP }}" -disableMetrics'
 
   apt-install:
+    platforms: [linux]
     cmds:
       - cmd: |
-          sudo apt install \
-            git build-essential \
-            qtcreator qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools \
+          sudo apt install /
+            git build-essential /
+            qtcreator qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools /
             libusb-1.0-0-dev libhidapi-dev pkgconf libmbedtls-dev qttools5-dev-tools
 
   build:
-    deps: [vcpkg-integrate, git-submodule-init]
+    deps: [git-submodule-init]
+    env:
+      ZMUSIC_ROOT: '{{joinPath .TASKFILE_DIR "libraries" "zmusic"}}'
+      VCPKG_ROOT: '{{joinPath .TASKFILE_DIR "libraries" "vcpkg"}}'
+      VCPKG_INSTALLED: '{{joinPath .TASKFILE_DIR "vcpkg_installed"}}'
+      VCPKG_INSTALLED_DIR: '{{joinPath .TASKFILE_DIR "vcpkg_installed"}}'
+      SOURCE_ROOT: '{{.TASKFILE_DIR}}'
+      BUILD_ROOT: '{{joinPath .TASKFILE_DIR ".build"}}'
+      ZMUSIC_BUILD_ROOT: '{{joinPath .TASKFILE_DIR ".build" "zmusic"}}'
+      DOOM_BUILD_ROOT: '{{joinPath .TASKFILE_DIR ".build" "doom"}}'
     cmds:
-      - cmd: qmake
-      - cmd: make
+      - task: vcpkg-integrate
+      - cmd: |  # shell
+          git -C "$SOURCE_ROOT" submodule update --init --recursive
+      - cmd: |  # shell
+          mkdir "$BUILD_ROOT" "$VCPKG_INSTALLED" "$ZMUSIC_BUILD_ROOT"
+      - cmd: |  # shell
+          cmake -A x64 -S "$ZMUSIC_ROOT" -B "$ZMUSIC_BUILD_ROOT" \
+              -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+              -DVCPKG_LIBSNDFILE=1 \
+              -DVCPKG_INSTALLED_DIR="$VCPKG_INSTALLED"
+      - cmd: |  # shell
+          cmake --build "$ZMUSIC_BUILD_ROOT" --config Release -- -maxcpucount -verbosity:minimal
+      - cmd: |  # shell
+          cmake -A x64 -S "$SOURCE_ROOT" -B "$DOOM_BUILD_ROOT" \
+              -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+              -DZMUSIC_INCLUDE_DIR="$ZMUSIC_ROOT/include" \
+              -DZMUSIC_LIBRARIES="$ZMUSIC_BUILD_ROOT/source/Release/zmusic.lib" \
+              -DVCPKG_INSTALLED_DIR="$VCPKG_INSTALLED"
+      - cmd: |  # shell
+          cmake --build "$DOOM_BUILD_ROOT" --config RelWithDebInfo -- -maxcpucount -verbosity:minimal
 
   make:
     deps: [python-venv]
     cmds:
-      - cmd: cmd.exe /D /C "call .venv\Scripts\activate.bat && make"
+      - cmd: cmd.exe /D /C "call .venv/Scripts/activate.bat && make"
 
   python-venv:
     sources:
@@ -139,9 +167,9 @@ tasks:
       - 7z
     cmds:
       - cmd: |
-          scoop install \
-            extras/inno-setup \
-            main/7zip \
+          scoop install /
+            extras/inno-setup /
+            main/7zip /
             main/uutils-coreutils
 
   git-submodule-init:
@@ -155,6 +183,7 @@ tasks:
           if [ -f "{{joinPath .TASKFILE_DIR ".gitmodules"}}" ]; then
             git -C "{{.TASKFILE_DIR}}" submodule update --init --recursive
           fi
+        silent: true
 
   clang-format:
     aliases: [fmt, format]
@@ -189,10 +218,10 @@ tasks:
         silent: true
         ignore_error: true
       - cmd: |
-          clang-tidy "{{joinPath .TASKFILE_DIR .CLANG_TIDY_SOURCE}}" \
-            --config-file="{{joinPath .TASKFILE_DIR ".clang-tidy"}}" \
-            --use-color \
-            --fix \
-            --fix-notes \
-            --fix-errors \
+          clang-tidy "{{joinPath .TASKFILE_DIR .CLANG_TIDY_SOURCE}}" /
+            --config-file="{{joinPath .TASKFILE_DIR ".clang-tidy"}}" /
+            --use-color /
+            --fix /
+            --fix-notes /
+            --fix-errors /
           > "{{joinPath .TASKFILE_DIR .CLANG_TIDY_OUT_FILE | fromSlash}}"
