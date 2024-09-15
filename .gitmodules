@@ -12,5 +12,5 @@
 	branch = main
 [submodule "libraries/RTGL"]
 	path = libraries/RTGL
-	url = https://github.com/vs-shirokii/RTGL.git
+	url = https://github.com/joelvaneenwyk/RTGL.git
 	branch = main
