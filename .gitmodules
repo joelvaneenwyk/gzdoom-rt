@@ -10,7 +10,7 @@
 	path = src/common/rendering/rt/unordered_dense
 	url = https://github.com/martinus/unordered_dense.git
 	branch = main
-[submodule "libraries/RTGL"]
+[submodule "rtgl"]
 	path = libraries/RTGL
 	url = https://github.com/joelvaneenwyk/RTGL.git
 	branch = main
