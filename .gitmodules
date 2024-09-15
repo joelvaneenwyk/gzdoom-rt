@@ -5,3 +5,7 @@
 	path = libraries/vcpkg
 	url = https://github.com/microsoft/vcpkg.git
 	branch = master
+[submodule "zmusic"]
+	path = libraries/zmusic
+	url = https://github.com/zdoom/zmusic
+	branch = master
