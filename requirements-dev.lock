@@ -14,7 +14,7 @@ astroid==3.2.4
     # via pylint
 cmake==3.30.3
     # via gzdoom-rt
-colorama==0.4.6 ; sys_platform == 'win32'
+colorama==0.4.6
     # via pylint
 dill==0.3.8
     # via pylint

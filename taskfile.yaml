@@ -76,10 +76,10 @@ tasks:
       VCPKG_ROOT_ARG: --vcpkg-root "{{joinPath .TASKFILE_DIR "libraries" "vcpkg "}}"
     cmds:
       - cmd: >-
-          {{.RUN}} "{{ fromSlash .VCPKG_EXE | shellQuote }} integrate install"
+          {{.RUN}} ""{{ fromSlash .VCPKG_EXE | shellQuote }}" integrate install"
         platforms: [windows]
       - cmd: >-
-          {{.RUN}} "{{ fromSlash .VCPKG_EXE | shellQuote }} install --debug --keep-going"
+          {{.RUN}} ""{{ fromSlash .VCPKG_EXE | shellQuote }}" install --debug --keep-going"
         platforms: [windows]
 
   vcpkg-download:
