@@ -38,4 +38,5 @@
 
 .task/
 vcpkg_installed/
+.mypy_cache/
 *.whl
